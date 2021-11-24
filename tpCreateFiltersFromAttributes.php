@@ -7,15 +7,16 @@
 function createFilterPosts(){
     global $wpdb;
     $attributes =  wc_get_attribute_taxonomies();
-
+	$dbprefix = $wpdb->prefix;
+	
     foreach ($attributes as $a=>$v){
 
-        $existingFilters = $wpdb->get_results("SELECT * FROM wp_posts WHERE post_type='br_product_filter' AND post_name='". $v->attribute_name ."' AND post_status='publish'");
+        $existingFilters = $wpdb->get_results("SELECT * FROM ".$dbprefix."posts WHERE post_type='br_product_filter' AND post_name='". $v->attribute_name ."' AND post_status='publish'");
 
         if(count($existingFilters)>0){
             break;
         }
-        $rows = $wpdb->insert("wp_posts", array(
+        $rows = $wpdb->insert($dbprefix."posts", array(
             "ID" => NULL,
             "post_author" => 1,
             "post_date" =>  date("Y-m-d H:i:s")     ,
@@ -46,8 +47,8 @@ function createFilterPosts(){
 
 function createFilterMeta(){
     global $wpdb;
-
-    $filters = $wpdb->get_results("SELECT * FROM wp_posts WHERE post_type='br_product_filter' AND post_status='publish'");
+	$dbprefix = $wpdb->prefix;
+    $filters = $wpdb->get_results("SELECT * FROM ".$dbprefix."posts WHERE post_type='br_product_filter' AND post_status='publish'");
  
 
     foreach ($filters as $k=>$v){
@@ -114,13 +115,13 @@ function createFilterMeta(){
             'widget_collapse' => 'with_arrow',
             'attribute_count_show_hide' => '',
         );
-        $rows = $wpdb->insert("wp_postmeta", array(
+        $rows = $wpdb->insert($dbprefix."postmeta", array(
             "meta_id" => NULL,
             "post_id" => $v->ID,
             "meta_key" =>  "br_product_filter"    ,
             "meta_value" => serialize($filterData)
         ));
-        $rows1 = $wpdb->insert("wp_postmeta", array(
+        $rows1 = $wpdb->insert($dbprefix."postmeta", array(
             "meta_id" => NULL,
             "post_id" => $v->ID,
             "meta_key" =>  "auxin-autop"    ,
@@ -133,8 +134,9 @@ function createFilterMeta(){
 
 function createFiltersGroup(){
     global $wpdb;
+	$dbprefix = $wpdb->prefix;
     
-    $filters = $wpdb->get_results("SELECT * FROM wp_posts WHERE post_type='br_product_filter' AND post_status='publish'");
+    $filters = $wpdb->get_results("SELECT * FROM ".$dbprefix."posts WHERE post_type='br_product_filter' AND post_status='publish'");
     $filtersData = array (
         'data' =>
             array (
@@ -165,12 +167,12 @@ function createFiltersGroup(){
             ),
     );
 
-    $existingGroup = $wpdb->get_results("SELECT * FROM wp_posts WHERE post_type='br_filters_group' AND post_name='Auto generated filters' AND post_status='publish'");
+    $existingGroup = $wpdb->get_results("SELECT * FROM ".$dbprefix."posts WHERE post_type='br_filters_group' AND post_name='Auto generated filters' AND post_status='publish'");
 
 
     if(count($existingGroup)==0){
 
-        $group = $wpdb->insert("wp_posts", array(
+        $group = $wpdb->insert($dbprefix."posts", array(
             "ID" => NULL,
             "post_author" => 1,
             "post_date" =>  date("Y-m-d H:i:s")     ,
@@ -207,19 +209,19 @@ function createFiltersGroup(){
             );
         }
 
-        $rows = $wpdb->insert("wp_postmeta", array(
+        $rows = $wpdb->insert($dbprefix."postmeta", array(
             "meta_id" => NULL,
             "post_id" => $wpdb->insert_id,
             "meta_key" =>  "br_filters_group"    ,
             "meta_value" => serialize($filtersData)
         ));
-        $rows1 = $wpdb->insert("wp_postmeta", array(
+        $rows1 = $wpdb->insert($dbprefix."postmeta", array(
             "meta_id" => NULL,
             "post_id" =>  $wpdb->insert_id,
             "meta_key" =>  "auxin-autop"    ,
             "meta_value" => "no"
         ));
-        $rows2 = $wpdb->insert("wp_postmeta", array(
+        $rows2 = $wpdb->insert($dbprefix."postmeta", array(
             "meta_id" => NULL,
             "post_id" =>  $wpdb->insert_id,
             "meta_key" =>  "_wp_old_slug"    ,
